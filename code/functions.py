@@ -410,7 +410,7 @@ def update_structure_function(structure, type, pos, material=None):
         # check if material is 2
         if material == 2:
             # remove vertex including all it's edges
-            structure.graph.remove_vertex(new_vertex)
+            structure.remove_vertex(new_vertex)
 
     # case 2
     elif type == 'drop':
@@ -423,7 +423,7 @@ def update_structure_function(structure, type, pos, material=None):
             # check if it is in structure graph
             if new_vertex in structure.graph:
                 # if so, add the edge
-                structure.graph.add_edge((vertex, new_vertex))
+                structure.add_edge((vertex, new_vertex))
 
     # case 3
     else:

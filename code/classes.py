@@ -24,9 +24,6 @@ class World:
     Methods:
     - __init__: Initializes a new instance of the World class.
     - diffuse_tensor: Diffuses a given tensor in the world.
-    - move_agent: moves agent in world
-    - pickup: picks up material
-    - drop: drops material
     """
     # init
     def __init__(self, width, length, height, soil_height, objects=None):
@@ -86,47 +83,106 @@ class World:
             tensor = new_tensor
         # return
         return tensor
-    
-    # move method
-    def move_agent(self, old_pos, new_pos):
+
+# Agent class
+class Agent:
+    """
+    Represents an agent within the world, capable of moving, picking up, and dropping materials.
+
+    Attributes:
+    - pos: Current position of the agent in the world (x, y, z).
+    - has_pellet: Indicates whether the agent is carrying a pellet (1 if yes, 0 otherwise).
+
+    Methods:
+    - __init__: Initializes a new instance of the Agent class.
+    - place: Places the agent in the world, updating the grid accordingly.
+    - move: Moves the agent from current position to the new position in the grid.
+    - pickup: Picks up a material from the position (x, y, z-1) in the grid.
+    - drop: Drops a material at the position (x, y, z) in the grid.
+    """
+    # init
+    def __init__(self, world):
         """
-        Move an agent from the old position to the new position in the grid.
+        Initializes a new instance of the Agent class.
 
         Parameters:
+        - world: The World object representing the environment.
+
+        Returns:
+        None
+        """
+        no_obj = np.where(world.grid[:,:,world.soil_height]==0)
+        x = np.random.choice(no_obj[0])
+        y = np.random.choice(no_obj[1])
+        z = world.soil_height
+        self.pos = np.array([x, y, z])
+        world.grid[x, y, z] = -2
+        self.has_pellet = 0
+
+    # place method
+    def place(self, world):
+        """
+        Places the agent in the world, updating the grid accordingly.
+
+        Parameters:
+        - world: The World object representing the environment.
+
+        Returns:
+        None
+        """
+        pos = self.pos
+        world.grid[pos[0], pos[1], pos[2]] = -2
+
+    # move method
+    def move(self, world, new_pos):
+        """
+        Moves the agent from the old position to the new position in the grid.
+
+        Parameters:
+        - world: The World object representing the environment.
         - old_pos: Tuple representing the old position (x, y, z) of the agent.
         - new_pos: Tuple representing the new position (x, y, z) where the agent will move.
 
         Returns:
         None
         """
-        self.grid[old_pos[0],old_pos[1],old_pos[2]] = 0
-        self.grid[new_pos[0],new_pos[1],new_pos[2]] = -2
+        old_pos = self.pos
+        world.grid[old_pos[0], old_pos[1], old_pos[2]] = 0
+        self.pos = np.array(new_pos)
+        self.place(world)
 
     # pickup method
-    def pickup(self, pos):
+    def pickup(self, world):
         """
-        Pick up a material from the position (x, y, z-1) in the grid.
+        Picks up a material from the position (x, y, z-1) in the grid.
 
         Parameters:
-        - pos: Tuple representing the position (x, y, z) of the agent.
+        - world: The World object representing the environment.
 
         Returns:
         None
         """
-        self.grid[pos[0],pos[1],pos[2]-1] = 0
+        pos = self.pos
+        world.grid[pos[0], pos[1], pos[2]-1] = 0
+        world.grid[pos[0], pos[1], pos[2]] = 0
+        self.pos = np.array([pos[0], pos[1], pos[2]-1])
+        self.place(world)
 
     # drop method
-    def drop(self, pos):
+    def drop(self, world, new_pos):
         """
-        Drop a material at the position (x, y, z) in the grid.
+        Drops a material at the current position in the grid.
 
         Parameters:
-        - pos: Tuple representing the position (x, y, z) where the agent will drop the material.
+        - world: The World object representing the environment.
 
         Returns:
         None
         """
-        self.grid[pos[0],pos[1],pos[2]] = 2
+        pos = self.pos
+        world.grid[pos[0], pos[1], pos[2]] = 2
+        self.pos = np.array(new_pos)
+        self.place(world)
 
 # Surface class
 class Surface:
@@ -347,7 +403,7 @@ class Structure:
         Parameters:
         - type: Type of action ('pickup' or 'drop').
         - pos: Position in the world.
-        - world: The world object.
+        - material: The material picked up.
 
         Returns:
         - None
