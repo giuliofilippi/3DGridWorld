@@ -166,6 +166,7 @@ class Agent:
         world.grid[pos[0], pos[1], pos[2]-1] = 0
         world.grid[pos[0], pos[1], pos[2]] = 0
         self.pos = np.array([pos[0], pos[1], pos[2]-1])
+        self.has_pellet = 1
         self.place(world)
 
     # drop method
@@ -182,6 +183,7 @@ class Agent:
         pos = self.pos
         world.grid[pos[0], pos[1], pos[2]] = 2
         self.pos = np.array(new_pos)
+        self.has_pellet = 0
         self.place(world)
 
 # Surface class
