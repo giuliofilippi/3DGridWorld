@@ -1,6 +1,7 @@
 # sys
 import sys
 sys.path.append('code')
+sys.path.append('khuong')
 
 # base imports
 import numpy as np
@@ -25,8 +26,6 @@ structure = Structure()
 num_steps = 100
 num_agents = 500
 pellet_num = 0 
-
-# khuong params
 lifetime = 1000
 decay_rate = 1/lifetime
 
@@ -47,6 +46,7 @@ drop_rate_list = []
 
 # start time
 start_time = time.time()
+
 # loop over time steps
 for step in tqdm(range(num_steps)):
     # reset variables and generate random values
@@ -60,8 +60,9 @@ for step in tqdm(range(num_steps)):
     # pickup and drop rates
     pickup_rate = 0
     drop_rate = 0
-    # loop over permuted agents
+    # generate a permutation to avoid biases
     permutation = np.random.permutation(num_agents)
+    # loop over permuted agents
     for i in permutation:
         # random position
         random_pos = random_positions[i]

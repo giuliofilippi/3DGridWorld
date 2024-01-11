@@ -1,6 +1,7 @@
 # sys
 import sys
 sys.path.append('code')
+sys.path.append('khuong')
 
 # base imports
 import numpy as np
@@ -49,6 +50,7 @@ drop_rate_list = []
 
 # start time
 start_time = time.time()
+
 # loop over time steps
 for step in tqdm(range(num_steps)):
     # reset variables

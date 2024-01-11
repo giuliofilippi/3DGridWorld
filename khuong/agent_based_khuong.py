@@ -1,6 +1,7 @@
 # sys
 import sys
 sys.path.append('code')
+sys.path.append('khuong')
 
 # base imports
 import numpy as np
@@ -24,6 +25,8 @@ agent_list = [Agent(world) for i in range(500)]
 num_steps = 100 
 num_agents = 500 
 m = 15
+lifetime = 1000 # pheromone lifetime in seconds
+decay_rate = 1/lifetime # decay rate nu_m
 
 # extra params
 collect_data = True
@@ -42,10 +45,11 @@ drop_rate_list = []
 
 # start time
 start_time = time.time()
+
 # loop over time steps
 for step in tqdm(range(num_steps)):
     # reset variables and generate randoms
-    x_random = np.random.rand(num_agents)
+    random_values = np.random.rand(num_agents)
     # no pellet num for cycle
     no_pellet_num_cycle, pellet_num_cycle = num_agents-pellet_num, pellet_num
     # pickup and drop rates
@@ -60,9 +64,9 @@ for step in tqdm(range(num_steps)):
         last_pos = move_policy(agent.pos, world, m)
         agent.pos = last_pos
 
-        # pickup algorithm
+        # pickup rule
         if agent.has_pellet == 0:
-            material = pickup_policy(agent.pos, world, x_rand=x_random[i])
+            material = pickup_policy(agent.pos, world, x_rand=random_values[i])
             if material is not None:
                 # pickup
                 agent.pickup(world)
@@ -72,9 +76,9 @@ for step in tqdm(range(num_steps)):
                 if material == 2:
                     total_built_volume -=1
 
-        # drop algorithm
+        # drop rule
         else:
-            new_pos = drop_policy(agent.pos, world, x_rand=x_random[i])
+            new_pos = drop_policy(agent.pos, world, x_rand=random_values[i])
             if new_pos is not None:
                 # drop
                 agent.drop(world, new_pos)
