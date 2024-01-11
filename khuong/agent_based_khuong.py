@@ -17,7 +17,7 @@ from khuong_algorithms import move_algorithm_new as move_policy
 from khuong_algorithms import pickup_algorithm as pickup_policy
 from khuong_algorithms import drop_algorithm_new as drop_policy
 
-# initialize world and agents
+# initialize
 world = World(200, 200, 200, 20) # 200, 200, 200, 20
 agent_list = [Agent(world) for i in range(500)]
 

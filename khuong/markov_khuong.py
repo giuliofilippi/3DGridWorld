@@ -20,7 +20,7 @@ from functions import (get_initial_graph,
 from khuong_algorithms import pickup_algorithm as pickup_policy
 from khuong_algorithms import drop_algorithm_graph as drop_policy
 
-# initialize world, surface and agents
+# initialize
 world = World(200, 200, 200, 20) # 200, 200, 200, 20
 surface = Surface(get_initial_graph(world.width, world.length, world.soil_height))
 agent_list = [Agent(world) for i in range(500)]
