@@ -62,7 +62,7 @@ for step in tqdm(range(num_steps)):
         # agent i
         agent = agent_list[i]
         # get position and remove position from index
-        prob_dist = Tm[index_dict[agent.pos]].toarray().flatten()
+        prob_dist = Tm[index_dict[tuple(agent.pos)]].toarray().flatten()
         random_pos = conditional_random_choice(vertices,
                                                 p = prob_dist, 
                                                 removed_indices=removed_indices)

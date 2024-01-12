@@ -78,7 +78,7 @@ for step in tqdm(range(num_steps)):
 
         # drop rule
         else:
-            new_pos = drop_policy(agent.pos, world, x_rand=random_values[i])
+            new_pos = drop_policy(agent.pos, world, step, decay_rate, x_rand = random_values[i])
             if new_pos is not None:
                 # drop
                 agent.drop(world, new_pos)

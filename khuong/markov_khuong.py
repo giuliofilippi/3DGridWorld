@@ -26,9 +26,9 @@ surface = Surface(get_initial_graph(world.width, world.length, world.soil_height
 agent_list = [Agent(world) for i in range(500)]
 
 # khuong params
-num_steps = 345600 # should be 345600 steps (for 96 hours)
+num_steps = 100 # should be 345600 steps (for 96 hours)
 num_agents = 500 # number of agents
-m = 8 # num moves per agent
+m = 6 # num moves per agent
 lifetime = 1000 # pheromone lifetime in seconds
 decay_rate = 1/lifetime # decay rate nu_m
 
@@ -70,7 +70,7 @@ for step in tqdm(range(num_steps)):
         # agent i
         agent = agent_list[i]
         # get position and remove position from index
-        prob_dist = Tm[index_dict[agent.pos]].toarray().flatten()
+        prob_dist = Tm[index_dict[tuple(agent.pos)]].toarray().flatten()
         random_pos = conditional_random_choice(vertices,
                                                 p = prob_dist, 
                                                 removed_indices=removed_indices)
@@ -98,7 +98,7 @@ for step in tqdm(range(num_steps)):
         # pellet
         else:
             # drop algorithm
-            new_pos = drop_policy(random_pos, world, x_rand=random_values[i])
+            new_pos = drop_policy(random_pos, world, surface.graph, step, decay_rate, x_rand = random_values[i])
             if new_pos is not None:
                 # update data
                 pellet_num -= 1

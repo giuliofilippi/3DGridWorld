@@ -76,12 +76,12 @@ for step in tqdm(range(num_steps)):
                 # make data updates
                 pellet_num += 1
                 pickup_rate += 1/no_pellet_num_cycle
-                if material == 2:
-                    total_built_volume -=1
                 surface.update_surface(type='pickup', 
                                             pos=random_pos, 
                                             world=world)
-                structure.update_structure(type='pickup', 
+                if material == 2:
+                    total_built_volume -=1
+                    structure.update_structure(type='pickup', 
                                             pos=random_pos, 
                                             material=material)
                 
@@ -97,7 +97,7 @@ for step in tqdm(range(num_steps)):
                 surface.update_surface(type='drop', 
                                             pos=random_pos, 
                                             world=world)
-                structure.update_structure(type='pickup', 
+                structure.update_structure(type='drop', 
                                             pos=random_pos, 
                                             material=None)
 
