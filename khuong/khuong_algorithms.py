@@ -5,7 +5,7 @@ sys.path.append('code')
 # imports
 import numpy as np
 
-# classes and functions
+# functions
 from functions import (random_choices,
                        random_move_direction,
                        local_grid_data,
@@ -151,6 +151,33 @@ def move_algorithm_new(pos, world, m):
             break
     world.grid[pos[0],pos[1],pos[2]]=-2
     return pos
+
+# move algorithm graph
+def move_algorithm_graph(pos, surface_graph, world, m):
+    """
+    Executes the move algorithm on surface graph.
+
+    Parameters:
+    - pos: Current position.
+    - surface: The Surface graph.
+    - m: Number of moves.
+
+    Returns:
+    - Final position after moving.
+    """
+    world.grid[pos[0],pos[1],pos[2]]=0
+    for j in range(m):
+        x,y,z = pos
+        locs = surface_graph[(x,y,z)]
+        if len(locs)>0:
+            chosen_loc = random_choices(locs)[0]
+            # check empty
+            if world.grid[chosen_loc[0],chosen_loc[1],chosen_loc[2]] == 0:
+                # do the step
+                pos = chosen_loc
+    # return final position
+    world.grid[pos[0],pos[1],pos[2]]=-2
+    return (pos[0], pos[1], pos[2])
 
 # pickup algorithm
 def pickup_algorithm(pos, world, x_rand):

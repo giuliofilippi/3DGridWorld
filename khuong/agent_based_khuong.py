@@ -9,17 +9,20 @@ import pandas as pd
 import time
 from tqdm import tqdm
 
-# classes
-from classes import World, Agent
+# classes and functions
+from classes import World, Agent, Surface, Structure
+from functions import get_initial_graph
 
-# algorithms
-from khuong_algorithms import move_algorithm_new as move_policy
+# khuong functions
+from khuong_algorithms import move_algorithm_graph as move_policy
 from khuong_algorithms import pickup_algorithm as pickup_policy
 from khuong_algorithms import drop_algorithm_new as drop_policy
 
 # initialize
 world = World(200, 200, 200, 20) # 200, 200, 200, 20
 agent_list = [Agent(world) for i in range(500)]
+surface = Surface(get_initial_graph(world.width, world.length, world.soil_height))
+structure = Structure()
 
 # params
 num_steps = 100 
@@ -40,6 +43,7 @@ pellet_num = 0
 total_built_volume = 0
 pellet_proportion_list = []
 total_built_volume_list = []
+total_surface_area_list = []
 pickup_rate_list = []
 drop_rate_list = []
 
@@ -61,7 +65,7 @@ for step in tqdm(range(num_steps)):
         agent = agent_list[i]
 
         # movement rule
-        last_pos = move_policy(agent.pos, world, m)
+        last_pos = move_policy(agent.pos, surface.graph, world, m)
         agent.pos = last_pos
 
         # pickup rule
@@ -73,8 +77,14 @@ for step in tqdm(range(num_steps)):
                 # data updates
                 pellet_num += 1
                 pickup_rate += 1/no_pellet_num_cycle
+                surface.update_surface(type='pickup', 
+                                            pos=last_pos, 
+                                            world=world)
                 if material == 2:
                     total_built_volume -=1
+                    structure.update_structure(type='pickup', 
+                                            pos=last_pos, 
+                                            material=material)
 
         # drop rule
         else:
@@ -86,11 +96,18 @@ for step in tqdm(range(num_steps)):
                 pellet_num -= 1
                 drop_rate += 1/pellet_num_cycle
                 total_built_volume += 1
+                surface.update_surface(type='drop', 
+                                            pos=last_pos, 
+                                            world=world)
+                structure.update_structure(type='drop', 
+                                            pos=last_pos, 
+                                            material=None)
 
     # collect data
     if collect_data:
         pellet_proportion_list.append(pellet_num/num_agents)
         total_built_volume_list.append(total_built_volume)
+        total_surface_area_list.append(len(surface.graph.keys()))
         pickup_rate_list.append(pickup_rate)
         drop_rate_list.append(drop_rate)
 
@@ -109,13 +126,15 @@ if collect_data:
     params = ['num_steps={}'.format(num_steps),
               'num_agents={}'.format(num_agents),
               'm={}'.format(m),
-              'runtime={}s'.format(int(end_time - start_time))]+['']*(num_steps-4)
+              'lifetime={}'.format(lifetime),
+              'runtime={}s'.format(int(end_time - start_time))]+['']*(num_steps-5)
     data_dict = {
         'params':params,
         'steps':steps,
         'proportion_pellet':pellet_proportion_list,
         'pickup_rate':pickup_rate_list,
         'drop_rate':drop_rate_list,
+        'surface_area':total_surface_area_list,
         'volume':total_built_volume_list
     }
     df = pd.DataFrame(data_dict)

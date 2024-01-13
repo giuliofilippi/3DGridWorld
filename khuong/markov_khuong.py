@@ -10,7 +10,7 @@ import time
 from tqdm import tqdm
 
 # classes and functions
-from classes import World, Agent, Surface
+from classes import World, Agent, Surface, Structure
 from functions import (get_initial_graph,
                        conditional_random_choice,
                        construct_rw_sparse_matrix,
@@ -22,8 +22,9 @@ from khuong_algorithms import drop_algorithm_graph as drop_policy
 
 # initialize
 world = World(200, 200, 200, 20) # 200, 200, 200, 20
-surface = Surface(get_initial_graph(world.width, world.length, world.soil_height))
 agent_list = [Agent(world) for i in range(500)]
+surface = Surface(get_initial_graph(world.width, world.length, world.soil_height))
+structure = Structure()
 
 # khuong params
 num_steps = 100 # should be 345600 steps (for 96 hours)
@@ -88,11 +89,14 @@ for step in tqdm(range(num_steps)):
                 pickup_rate += 1/no_pellet_num_cycle
                 agent.pos = (random_pos[0],random_pos[1],random_pos[2]-1)
                 agent.has_pellet = 1
-                if material == 2:
-                    total_built_volume -=1
                 surface.update_surface(type='pickup', 
                                         pos=random_pos, 
                                         world=world)
+                if material == 2:
+                    total_built_volume -=1
+                    structure.update_structure(type='pickup', 
+                                            pos=random_pos, 
+                                            material=material)
                 
 
         # pellet
@@ -113,6 +117,9 @@ for step in tqdm(range(num_steps)):
                 surface.update_surface(type='drop', 
                                         pos=random_pos, 
                                         world=world)
+                structure.update_structure(type='drop', 
+                                            pos=random_pos, 
+                                            material=None)
 
     # collect data
     if collect_data:
