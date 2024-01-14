@@ -26,8 +26,8 @@ structure = Structure()
 
 # params
 num_steps = 100 
-num_agents = 500 
-m = 15
+num_agents = 500
+m = 1500
 lifetime = 1000 # pheromone lifetime in seconds
 decay_rate = 1/lifetime # decay rate nu_m
 
