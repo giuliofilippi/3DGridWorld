@@ -578,52 +578,6 @@ def construct_rw_sparse_matrix(graph):
     # return
     return index_dict, vertices, T
 
-def construct_torch_sparse_matrix(graph):
-    """
-    Constructs a sparse matrix representation for a given graph.
-    
-    Parameters:
-    - graph: Graph representing the world.
-
-    Returns:
-    - Index dictionary, vertices, and sparse matrix.
-    """
-    # variables
-    vertices = list(graph.keys())
-    num_vertices = len(vertices)
-    
-    # build index
-    index_dict = {vertex: i for i, vertex in enumerate(vertices)}
-    
-    # initialize COO format data
-    row_indices = []
-    col_indices = []
-    data = []
-
-    for i, vertex in enumerate(vertices):
-        nbrs = graph[vertex]
-        num_nbrs = len(nbrs)
-        map_nbrs = [index_dict[v] for v in nbrs]   
-        
-        if num_nbrs > 0:
-            row_indices.extend([i] * num_nbrs)
-            col_indices.extend(map_nbrs)
-            data.extend([1.0 / num_nbrs] * num_nbrs)
-        else:
-            row_indices.append(i)
-            col_indices.append(i)
-            data.append(1.0 / num_vertices)  # Avoid division by zero
-
-    # build T directly in COO format
-    row_indices = torch.tensor(row_indices, dtype=torch.long)
-    col_indices = torch.tensor(col_indices, dtype=torch.long)
-    values = torch.tensor(data, dtype=torch.float32)
-    
-    T = torch.sparse.FloatTensor(torch.stack([row_indices, col_indices]), values, (num_vertices, num_vertices))
-
-    # return
-    return index_dict, vertices, T
-
 # a function that takes power of matrix through repeated squaring
 def sparse_matrix_power(A, m):
     """

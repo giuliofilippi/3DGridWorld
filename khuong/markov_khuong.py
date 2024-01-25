@@ -60,9 +60,7 @@ for step in tqdm(range(num_steps)):
     # generate randoms for cycle
     random_values = np.random.random(num_agents)
     # create transition matrix and take power
-    print ('CONSTRUCT')
     index_dict, vertices, T = construct_rw_sparse_matrix(surface.graph)
-    print ('EXPONENTIATE')
     Tm = sparse_matrix_power(T, m)
     # no pellet num for cycle
     no_pellet_num_cycle, pellet_num_cycle = num_agents-pellet_num, pellet_num
