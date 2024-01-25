@@ -7,15 +7,15 @@ sys.path.append('khuong')
 import numpy as np
 import pandas as pd
 import time
+import torch
 from tqdm import tqdm
 
 # classes and functions
 from classes import World, Agent, Surface, Structure
 from functions import (get_initial_graph,
-                       conditional_random_choice,
-                       construct_rw_sparse_matrix,
-                       sparse_matrix_power)
-
+                       conditional_random_choice)
+# torch
+from functions import construct_torch_sparse_matrix
 
 # khuong functions
 from khuong_algorithms import pickup_algorithm as pickup_policy
@@ -61,9 +61,9 @@ for step in tqdm(range(num_steps)):
     random_values = np.random.random(num_agents)
     # create transition matrix and take power
     print ('CONSTRUCT')
-    index_dict, vertices, T = construct_rw_sparse_matrix(surface.graph)
+    index_dict, vertices, T = construct_torch_sparse_matrix(surface.graph)
     print ('EXPONENTIATE')
-    Tm = sparse_matrix_power(T, m)
+    Tm = torch.matrix_power(T, m)
     # no pellet num for cycle
     no_pellet_num_cycle, pellet_num_cycle = num_agents-pellet_num, pellet_num
     # pickup and drop rates
@@ -74,7 +74,7 @@ for step in tqdm(range(num_steps)):
         # agent i
         agent = agent_list[i]
         # get position and remove position from index
-        prob_dist = Tm[index_dict[tuple(agent.pos)]].toarray().flatten()
+        prob_dist = Tm[index_dict[tuple(agent.pos)]].to_dense().numpy()
         random_pos = conditional_random_choice(vertices,
                                                 p = prob_dist, 
                                                 removed_indices=removed_indices)
