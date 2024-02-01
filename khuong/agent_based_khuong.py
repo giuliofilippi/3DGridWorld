@@ -36,7 +36,7 @@ collect_data = True
 render_images = True
 final_render = False
 if final_render:
-    from render import render
+    from display import render
 
 # data storage
 pellet_num = 0
