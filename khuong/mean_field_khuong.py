@@ -7,6 +7,7 @@ sys.path.append('khuong')
 import numpy as np
 import pandas as pd
 import time
+import pickle
 from tqdm import tqdm
 
 # classes and functions
@@ -18,12 +19,12 @@ from khuong_algorithms import pickup_algorithm as pickup_policy
 from khuong_algorithms import drop_algorithm_graph as drop_policy
 
 # params
-num_steps = 100
-num_agents = 500
+num_steps = 96*60*60 # 96 hours
+num_agents = 500 # 500 agents
 pellet_num = 0
 lifetime = 1000
 decay_rate = 1/lifetime
-num_scatter = 5000
+num_scatter = 5000 # scatter 5000 pieces of material
 
 # initialize
 world = World(200, 200, 200, 20) # 200, 200, 200, 20
@@ -34,17 +35,17 @@ structure = Structure()
 random_scatter(num_scatter, world, surface, structure)
 
 # extra params
-collect_data = False
-render_images = False
-final_render = True
+collect_data = True
+export_data = True
+final_render = False
 if final_render:
     from display import render
 
 # data storage
-total_built_volume = 0
+total_drops = 0
 pellet_proportion_list = []
 total_surface_area_list = []
-total_built_volume_list = []
+total_drops_list = []
 pickup_rate_list = []
 drop_rate_list = []
 
@@ -86,7 +87,6 @@ for step in tqdm(range(num_steps)):
                                                 pos=random_pos, 
                                                 world=world)
                     if material == 2:
-                        total_built_volume -=1
                         structure.update_structure(type='pickup', 
                                                 pos=random_pos, 
                                                 material=material)
@@ -97,7 +97,7 @@ for step in tqdm(range(num_steps)):
             new_pos = drop_policy(pos, world, surface.graph, step, decay_rate, x_rand = random_values[i])
             if new_pos is not None:
                 # update data and surface
-                total_built_volume += 1
+                total_drops += 1
                 pellet_num -= 1
                 drop_rate += 1/pellet_num_cycle
                 surface.update_surface(type='drop', 
@@ -111,14 +111,24 @@ for step in tqdm(range(num_steps)):
     if collect_data:
         pellet_proportion_list.append(pellet_num/num_agents)
         total_surface_area_list.append(len(surface.graph.keys()))
-        total_built_volume_list.append(total_built_volume)
+        total_drops_list.append(total_drops)
         pickup_rate_list.append(pickup_rate)
         drop_rate_list.append(drop_rate)
 
     # render images
-    if render_images:
+    if export_data:
+        # export every 30 minutes
         if step % (60*60) == 0:
-            np.save(file="./exports/tensors/meanfield_{}".format(step+1), arr=world.grid)
+            # export world tensor
+            np.save(file="./exports/tensors/tensor_{}".format(step+1), arr=world.grid)
+
+            # export structure graph
+            with open("./exports/structures/structure_{}.pkl".format(step+1), 'wb') as handle:
+                pickle.dump(structure.graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+            # export surface graph
+            with open("./exports/surfaces/surface_{}.pkl".format(step+1), 'wb') as handle:
+                pickle.dump(surface.graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # end time
 end_time = time.time()
@@ -138,10 +148,10 @@ if collect_data:
         'pickup_rate':pickup_rate_list,
         'drop_rate':drop_rate_list,
         'surface_area':total_surface_area_list,
-        'volume':total_built_volume_list
+        'number_drops':total_drops_list
     }
     df = pd.DataFrame(data_dict)
-    df.to_pickle('./exports/dataframes/meanfield_khuong_data.pkl')
+    df.to_pickle('./exports/dataframes/dataframe.pkl')
 
 # render world mayavi
 if final_render:
