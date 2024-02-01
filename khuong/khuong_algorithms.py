@@ -86,15 +86,18 @@ def prob_drop(N, t_now, t_latest, decay_rate, h):
     Returns:
     - Drop probability.
     """
-    # time delta
-    tau = t_now-t_latest
-    # see paper for formula
-    prob = 1 - np.e**(-eta_d(N)*np.e**(-tau*decay_rate))
-    if h>0:
-        # add vertical modulation for height h>1 in mm
-        prob = prob*mod_list[h]
-    # return
-    return prob
+    if N==0:
+        return 0.025   # see paper
+    else:
+        # time delta
+        tau = t_now-t_latest
+        # see paper for formula
+        prob = 1 - np.e**(-eta_d(N)*np.e**(-tau*decay_rate))
+        if h>0:
+            # add vertical modulation for height h>1 in mm
+            prob = prob*mod_list[h]
+        # return
+        return prob
 
 # ------------ Algorithms ----------------------
 # ----------------------------------------------

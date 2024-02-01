@@ -34,7 +34,7 @@ class World:
         self.soil_height = soil_height
         self.objects = objects
         self.grid = np.zeros((width, length, height), dtype=int)
-        self.times = np.zeros((width, length, height), dtype=int)
+        self.times = -np.ones((width, length, height), dtype=int)*10**9 # past very far away
         self.field = np.zeros((width, length, height), dtype=float)
         self.pheromones = np.zeros((width, length, height), dtype=float)
         # insert soil
