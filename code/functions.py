@@ -121,6 +121,58 @@ def get_initial_graph(width, lenght, soil_height):
     # return
     return graph
 
+# random scatter of material
+def random_scatter(num_scatter, world, surface, structure):
+    """
+    Randomly scatter a specified number of material drops on the given world.
+
+    Parameters:
+    - num_scatter (int): Number of material drops to scatter.
+    - world (World): The world object representing the environment.
+    - surface (Surface): The surface object for updating surface information.
+    - structure (Structure): The structure object for updating structure information.
+
+    Returns:
+    None
+
+    Description:
+    This function randomly scatters material drops within the world. It iterates 'num_scatter' times,
+    attempting to drop material at random positions. If the selected position is occupied, it searches
+    vertically until it finds an empty space to place the material drop. The changes in the world, surface,
+    and structure are updated accordingly.
+
+    Note:
+    The world grid is modified in-place, and the surface and structure are updated with the type 'drop'
+    at the corresponding positions.
+
+    Example:
+    random_scatter(10, my_world, my_surface, my_structure)
+    """
+    for i in range(num_scatter):
+        random_pos = (np.random.randint(world.width), np.random.randint(world.length), world.soil_height)
+        if world.grid[random_pos[0],random_pos[1],random_pos[2]] == 0:
+            world.grid[random_pos[0],random_pos[1],random_pos[2]] = 2
+            surface.update_surface(type='drop', 
+                                        pos=random_pos, 
+                                        world=world)
+            structure.update_structure(type='drop', 
+                                        pos=random_pos, 
+                                        material=None)
+        else:
+            j = 0
+            while True:
+                j += 1
+                if world.grid[random_pos[0],random_pos[1],random_pos[2]+j] == 0:
+                    new_pos = (random_pos[0],random_pos[1],random_pos[2]+j)
+                    world.grid[new_pos[0],new_pos[1],new_pos[2]] = 2
+                    surface.update_surface(type='drop', 
+                                                pos=new_pos, 
+                                                world=world)
+                    structure.update_structure(type='drop', 
+                                                pos=new_pos, 
+                                                material=None)
+                    break
+
 # get local grid data from position in world
 def local_grid_data(pos, world):
     """

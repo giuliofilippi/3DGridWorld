@@ -11,23 +11,27 @@ from tqdm import tqdm
 
 # classes and functions
 from classes import World, Surface, Structure
-from functions import get_initial_graph, random_choices
+from functions import get_initial_graph, random_scatter, random_choices
 
 # khuong imports
 from khuong_algorithms import pickup_algorithm as pickup_policy
 from khuong_algorithms import drop_algorithm_graph as drop_policy
+
+# params
+num_steps = 100
+num_agents = 500
+pellet_num = 0
+lifetime = 1000
+decay_rate = 1/lifetime
+num_scatter = 5000
 
 # initialize
 world = World(200, 200, 200, 20) # 200, 200, 200, 20
 surface = Surface(get_initial_graph(world.width, world.length, world.soil_height))
 structure = Structure()
 
-# params
-num_steps = 1000
-num_agents = 500
-pellet_num = 0 
-lifetime = 1000
-decay_rate = 1/lifetime
+# random scatter of material
+random_scatter(num_scatter, world, surface, structure)
 
 # extra params
 collect_data = False
@@ -71,19 +75,21 @@ for step in tqdm(range(num_steps)):
         if i < no_pellet_num_cycle:
             # pickup algorithm
             pos = random_pos
-            material = pickup_policy(pos, world, x_rand=random_values[i])
-            if material is not None:
-                # make data updates
-                pellet_num += 1
-                pickup_rate += 1/no_pellet_num_cycle
-                surface.update_surface(type='pickup', 
-                                            pos=random_pos, 
-                                            world=world)
-                if material == 2:
-                    total_built_volume -=1
-                    structure.update_structure(type='pickup', 
-                                            pos=random_pos, 
-                                            material=material)
+            #  only allow pickup of material now
+            if world.grid[pos[0],pos[1],pos[2]-1] == 2:
+                material = pickup_policy(pos, world, x_rand=random_values[i])
+                if material is not None:
+                    # make data updates
+                    pellet_num += 1
+                    pickup_rate += 1/no_pellet_num_cycle
+                    surface.update_surface(type='pickup', 
+                                                pos=random_pos, 
+                                                world=world)
+                    if material == 2:
+                        total_built_volume -=1
+                        structure.update_structure(type='pickup', 
+                                                pos=random_pos, 
+                                                material=material)
                 
         # pellet agents
         else:
