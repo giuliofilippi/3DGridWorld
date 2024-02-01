@@ -23,18 +23,18 @@ surface = Surface(get_initial_graph(world.width, world.length, world.soil_height
 structure = Structure()
 
 # params
-num_steps = 100
+num_steps = 1000
 num_agents = 500
 pellet_num = 0 
 lifetime = 1000
 decay_rate = 1/lifetime
 
 # extra params
-collect_data = True
-render_images = True
-final_render = False
+collect_data = False
+render_images = False
+final_render = True
 if final_render:
-    from render import render
+    from display import render
 
 # data storage
 total_built_volume = 0
