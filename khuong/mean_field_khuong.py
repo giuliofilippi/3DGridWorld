@@ -35,7 +35,6 @@ structure = Structure()
 random_scatter(num_scatter, world, surface, structure)
 
 # extra params
-collect_data = True
 export_data = True
 final_render = False
 if final_render:
@@ -107,35 +106,25 @@ for step in tqdm(range(num_steps)):
                                             pos=random_pos, 
                                             material=None)
 
-    # collect data
-    if collect_data:
+    # export data
+    if export_data:
         pellet_proportion_list.append(pellet_num/num_agents)
         total_surface_area_list.append(len(surface.graph.keys()))
         total_drops_list.append(total_drops)
         pickup_rate_list.append(pickup_rate)
         drop_rate_list.append(drop_rate)
 
-    # render images
-    if export_data:
-        # export every 30 minutes
+        # export grid every 60 minutes
         if step % (60*60) == 0:
-            # export world tensor
             np.save(file="./exports/tensors/tensor_{}".format(step+1), arr=world.grid)
-
-            # export structure graph
-            with open("./exports/structures/structure_{}.pkl".format(step+1), 'wb') as handle:
-                pickle.dump(structure.graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-            # export surface graph
-            with open("./exports/surfaces/surface_{}.pkl".format(step+1), 'wb') as handle:
-                pickle.dump(surface.graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # end time
 end_time = time.time()
 print("total time taken for this loop: ", end_time - start_time)
 
-# export pandas
-if collect_data:
+# export data
+if export_data:
+    # export pandas
     steps = np.array(range(num_steps))
     params = ['num_steps={}'.format(num_steps),
               'num_agents={}'.format(num_agents),
@@ -152,6 +141,14 @@ if collect_data:
     }
     df = pd.DataFrame(data_dict)
     df.to_pickle('./exports/dataframes/dataframe.pkl')
+
+    # export structure graph
+    with open("./exports/structures/structure_graph.pkl", 'wb') as handle:
+        pickle.dump(structure.graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # export surface graph
+    with open("./exports/surfaces/surface_graph.pkl", 'wb') as handle:
+        pickle.dump(surface.graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # render world mayavi
 if final_render:
